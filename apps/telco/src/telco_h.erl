@@ -9,7 +9,9 @@ init(Req0, Opts) ->
   {ok, Req, Opts}.
 
 process_transaction(<<"GET">>, undefined, Req) ->
-  cowboy_req:reply(400, #{}, <<"Missing MSISDN parameter.">>, Req);
+  cowboy_req:reply(400, #{
+    <<"content-type">> => <<"application/json">>
+   }, json_body_missing_parameter(), Req);
 process_transaction(<<"GET">>, Msisdn, Req) ->
   cowboy_req:reply(200, #{
     <<"content-type">> => <<"application/json">>
@@ -20,14 +22,20 @@ process_transaction(_, _, Req) ->
 json_body_success(Msisdn) ->
   list_to_binary("{
                     \"msisdn\":\"" ++ binary_to_list(Msisdn) ++ "\",
-                    \"status\":\"success\"
+                    \"status\":\"successful\"
                 }").
 
 json_body_fail(Msisdn) ->
   list_to_binary("{
                     \"msisdn\":\"" ++ binary_to_list(Msisdn) ++ "\",
-                    \"status\":\"fail\"
+                    \"status\":\"failed\"
                 }").
+
+json_body_missing_parameter() ->
+  list_to_binary("{
+                    \"msisdn\":\"Missing MSISDN parameter\",
+                    \"status\":\"failed\"
+                  }").
 
 evaluate_msisdn(Msisdn) ->
   case length(binary_to_list(Msisdn)) < 6 of
