@@ -12,7 +12,8 @@
 start(_StartType, _StartArgs) ->
   Dispatch = cowboy_router:compile([
                                     {'_', [
-                                           {"/", telco_h, []}
+                                           {"/", telco_h, []},
+                                           {"/ws", ws_h, []}
                                           ]}
                                    ]),
   {ok, _} = cowboy:start_clear(http, [{port, 8080}], #{env => #{dispatch => Dispatch}}),
