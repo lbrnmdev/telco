@@ -39,6 +39,10 @@ json_body_missing_parameter() ->
 
 evaluate_msisdn(Msisdn) ->
   case length(binary_to_list(Msisdn)) < 6 of
-    true -> json_body_fail(Msisdn);
-    false -> json_body_success(Msisdn)
+    true ->
+      gproc_ps:publish(l, msg_test, {fail, Msisdn}),
+      json_body_fail(Msisdn);
+    false ->
+      gproc_ps:publish(l, msg_test, {success, Msisdn}),
+      json_body_success(Msisdn)
   end.

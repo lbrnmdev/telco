@@ -6,8 +6,7 @@ init(Req, Opts) ->
   {cowboy_websocket, Req, Opts}.
 
 websocket_init(State) ->
-  %erlang:start_timer(1000, self(), <<"Hello!">>),
-  %{ok, State}.
+  gproc_ps:subscribe(l, msg_test),
   {reply, {text, <<"WS connection established">>}, State}.
 
 websocket_handle({text, Msg}, State) ->
@@ -15,16 +14,12 @@ websocket_handle({text, Msg}, State) ->
 websocket_handle(_Data, State) ->
   {ok, State}.
 
-%websocket_handle({text, Msg}, State) ->
-%  {reply, {text, << "That's what she said! ", Msg/binary >>}, State};
-%websocket_handle(_Data, State) ->
-%  {ok, State}.
-
+websocket_info({gproc_ps_event, msg_test, Msg}, State) ->
+  case Msg of
+    {success, Msisdn} ->
+      {reply, {text, <<"Successfully processed: ", Msisdn/binary >>}, State};
+    {fail, Msisdn} ->
+      {reply, {text, <<"Unable to process: ", Msisdn/binary >>}, State}
+  end;
 websocket_info(_Info, State) ->
   {reply, {text, <<"Received erlang message">>}, State}.
-
-%websocket_info({timeout, _Ref, Msg}, State) ->
-%  erlang:start_timer(1000, self(), <<"How' you doin'?">>),
-%  {reply, {text, Msg}, State};
-%websocket_info(_Info, State) ->
-%  {ok, State}.
